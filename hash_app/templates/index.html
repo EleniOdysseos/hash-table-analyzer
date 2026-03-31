@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hash Table Analyzer</title>
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <!-- Google Fonts: Nunito for headings, Quicksand for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="landing-page">
+
+  <main class="landing-center">
+    <div class="landing-card">
+
+      <!-- Small tag badges at the top -->
+      <div class="tag-row">
+        <span class="tag">CEI 224</span>
+        <span class="tag">Data Structures</span>
+        <span class="tag">Python</span>
+      </div>
+
+      <!-- Page title -->
+      <h1 class="landing-title">
+        Hash Table<br/>
+        <span class="title-accent">Analyzer</span>
+      </h1>
+
+      <!-- Short description of what the app does -->
+      <p class="landing-sub">
+        Builds 12 hash tables using two hash functions, two collision strategies,
+        and three table sizes. Search any word and compare lookup times across all tables.
+      </p>
+
+      <!-- 4 feature boxes summarizing the project specs -->
+      <div class="feature-grid">
+        <div class="feature-item">
+          <span class="feature-label">Hash functions</span>
+          <span class="feature-val">hash_sum &amp; hash_poly</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-label">Collision handling</span>
+          <span class="feature-val">Linear &amp; Quadratic probing</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-label">Table sizes</span>
+          <span class="feature-val">1009 · 2003 · 5003</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-label">Search timing</span>
+          <span class="feature-val">nanosecond precision</span>
+        </div>
+      </div>
+
+      <!-- Button that triggers /build route in Flask -->
+      <a href="/build" class="build-btn">
+        Build Hash Tables
+        <span class="btn-arrow">→</span>
+      </a>
+
+    </div>
+  </main>
+
+</body>
+</html>

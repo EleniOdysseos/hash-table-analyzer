@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hash Table Analyzer — Dashboard</title>
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="dashboard-page">
+
+  <!-- Top navigation bar: logo + word count + rebuild button -->
+  <header class="topbar">
+    <a href="/" class="topbar-logo">Hash Table Analyzer</a>
+    <div class="topbar-meta">
+      <span class="meta-pill">{{ total_words }} words</span>
+      <span class="meta-pill">12 tables</span>
+      <!-- Rebuild clears the cache and rebuilds all tables -->
+      <a href="/build" class="rebuild-btn">Rebuild</a>
+    </div>
+  </header>
+
+  <!-- Two-column layout: search sidebar on left, table stats on right -->
+  <div class="dashboard-layout">
+
+    <!-- LEFT SIDEBAR: search form + results -->
+    <aside class="search-panel">
+      <h2 class="panel-title">Search</h2>
+
+      <!-- Form submits to /search route via POST -->
+      <form action="/search" method="POST" class="search-form">
+        <input
+          type="text"
+          name="word"
+          class="search-input"
+          placeholder="Enter a word"
+          value="{{ search_word or '' }}"
+          autocomplete="off"
+        />
+        <button type="submit" class="search-btn">Search all tables</button>
+      </form>
+
+      <!-- Results section — only shown after a search -->
+      {% if search_word %}
+      <div class="search-results-panel">
+
+        <p class="results-header">
+          Results for <strong>"{{ search_word }}"</strong>
+        </p>
+
+        <!-- Highlighted card showing the fastest table for this word -->
+        {% if fastest %}
+        <div class="best-result-card">
+          <div class="best-label">Fastest result</div>
+          <div class="best-detail">{{ fastest.hash_name }} · {{ fastest.strategy_name }} · {{ fastest.size }}</div>
+          <div class="best-time">{{ fastest.time_us }} μs</div>
+        </div>
+        {% endif %}
+
+        <!-- One row per table: shows hash function, strategy, found/not found, and time -->
+        <div class="result-list">
+          {% for r in results %}
+          <div class="result-row
+            {% if r.found %}found{% else %}not-found{% endif %}
+            {% if fastest and r.hash_name == fastest.hash_name and r.strategy_name == fastest.strategy_name and r.size == fastest.size %}is-fastest{% endif %}">
+            <div class="result-meta">
+              <span class="result-fn">{{ r.hash_name }}</span>
+              <span class="result-sub">{{ r.strategy_name }} · {{ r.size }}</span>
+            </div>
+            <div class="result-right">
+              <span class="found-badge {% if r.found %}yes{% else %}no{% endif %}">
+                {% if r.found %}found{% else %}not found{% endif %}
+              </span>
+              <span class="result-time">{{ r.time_us }} μs</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+      </div>
+      {% endif %}
+    </aside>
+
+    <!-- RIGHT MAIN AREA: all 12 tables grouped by hash function + strategy -->
+    <main class="tables-area">
+      <h2 class="section-title">All 12 Hash Tables</h2>
+
+      <!-- Groups: 2 hash functions × 2 strategies = 4 groups, each with 3 size cards -->
+      {% set groups = [
+        ("hash_sum", "linear"),
+        ("hash_sum", "quadratic"),
+        ("hash_poly", "linear"),
+        ("hash_poly", "quadratic")
+      ] %}
+
+      {% for (hname, sname) in groups %}
+      <div class="group-block">
+
+        <!-- Group label showing which hash function and strategy this row uses -->
+        <div class="group-header">
+          <span class="group-fn">{{ hname }}</span>
+          <span class="group-sep">+</span>
+          <span class="group-strat">{{ sname }} probing</span>
+        </div>
+
+        <!-- 3 cards side by side, one per table size (1009, 2003, 5003) -->
+        <div class="cards-row">
+          {% for s in stats %}
+          {% if s.hash_name == hname and s.strategy_name == sname %}
+          <div class="stat-card">
+
+            <!-- Table size number -->
+            <div class="card-top">
+              <div class="card-size">{{ s.size }}</div>
+              <div class="card-label">table size</div>
+            </div>
+
+            <!-- Load factor shown as a percentage and a filled bar -->
+            <div class="load-section">
+              <div class="load-header">
+                <span class="load-title">Load factor</span>
+                <span class="load-pct-label">{{ s.load_pct }}%</span>
+              </div>
+              <!-- Bar color changes based on fill level: low/mid/high -->
+              <div class="load-bar-track">
+                <div class="load-bar-fill {% if s.load_pct >= 90 %}high{% elif s.load_pct >= 50 %}mid{% else %}low{% endif %}"
+                     style="width: {{ s.load_pct }}%"></div>
+              </div>
+            </div>
+
+            <!-- Three stat boxes: collisions, filled slots, empty slots -->
+            <div class="card-stat-row">
+              <div class="card-stat">
+                <div class="stat-val">{{ s.collisions }}</div>
+                <div class="stat-key">collisions</div>
+              </div>
+              <div class="card-stat">
+                <div class="stat-val">{{ s.non_empty }}</div>
+                <div class="stat-key">filled</div>
+              </div>
+              <div class="card-stat">
+                <div class="stat-val">{{ s.empty }}</div>
+                <div class="stat-key">empty</div>
+              </div>
+            </div>
+
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+    </main>
+  </div>
+
+</body>
+</html>
